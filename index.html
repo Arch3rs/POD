@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Proof of delivery sign-off app" />
+  <title>Proof of Delivery</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Delivery record</p>
+      <h1>Proof of Delivery</h1>
+    </div>
+    <button id="historyBtn" class="secondary-btn" type="button">Saved deliveries</button>
+  </header>
+
+  <main class="container">
+    <section class="card" id="deliveryFormCard">
+      <form id="podForm" autocomplete="off">
+        <div class="status-row">
+          <span id="saveStatus" class="save-status">Draft not yet saved</span>
+          <span id="recordId" class="record-id"></span>
+        </div>
+
+        <div class="grid two-col">
+          <label>
+            Delivery note number
+            <input id="deliveryNumber" name="deliveryNumber" type="text" required placeholder="e.g. DN-10245" />
+          </label>
+          <label>
+            Delivery date
+            <input id="deliveryDate" name="deliveryDate" type="date" required />
+          </label>
+        </div>
+
+        <div class="grid two-col">
+          <label>
+            Customer / company
+            <input id="customerName" name="customerName" type="text" required placeholder="Customer name" />
+          </label>
+          <label>
+            Delivered by
+            <input id="driverName" name="driverName" type="text" required placeholder="Driver name" />
+          </label>
+        </div>
+
+        <label>
+          Delivery address
+          <textarea id="deliveryAddress" name="deliveryAddress" rows="3" required placeholder="Full delivery address"></textarea>
+        </label>
+
+        <label>
+          Items delivered
+          <textarea id="itemsDelivered" name="itemsDelivered" rows="4" required placeholder="Describe the items, quantities or order details"></textarea>
+        </label>
+
+        <div class="grid two-col">
+          <label>
+            Condition on delivery
+            <select id="deliveryCondition" name="deliveryCondition" required>
+              <option value="">Select condition</option>
+              <option value="Received in good condition">Received in good condition</option>
+              <option value="Received with visible damage">Received with visible damage</option>
+              <option value="Received with shortages">Received with shortages</option>
+              <option value="Part delivery">Part delivery</option>
+            </select>
+          </label>
+          <label>
+            Recipient name
+            <input id="recipientName" name="recipientName" type="text" required placeholder="Name of person signing" />
+          </label>
+        </div>
+
+        <label>
+          Notes / exceptions
+          <textarea id="notes" name="notes" rows="3" placeholder="Damage, shortages, access issues or other notes"></textarea>
+        </label>
+
+        <fieldset class="signature-fieldset">
+          <legend>Recipient signature</legend>
+          <p class="hint">Sign inside the box using a finger, stylus or mouse.</p>
+          <div class="signature-wrap">
+            <canvas id="signatureCanvas" aria-label="Signature pad"></canvas>
+          </div>
+          <div class="signature-actions">
+            <button id="clearSignature" class="secondary-btn" type="button">Clear signature</button>
+          </div>
+        </fieldset>
+
+        <label class="checkbox-label">
+          <input id="confirmation" name="confirmation" type="checkbox" required />
+          <span>I confirm that the goods listed above have been received as stated.</span>
+        </label>
+
+        <div class="button-row">
+          <button id="completeBtn" class="primary-btn" type="submit">Complete delivery</button>
+          <button id="newBtn" class="secondary-btn" type="button">Start new delivery</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="confirmationPanel" class="card success-card hidden" aria-live="polite">
+      <div class="success-icon">✓</div>
+      <h2>Delivery saved</h2>
+      <p id="confirmationText"></p>
+      <div class="button-row">
+        <button id="printBtn" class="primary-btn" type="button">Print / save PDF</button>
+        <button id="downloadBtn" class="secondary-btn" type="button">Download record</button>
+        <button id="anotherBtn" class="secondary-btn" type="button">New delivery</button>
+      </div>
+    </section>
+
+    <section id="historyPanel" class="card hidden">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Stored on this device</p>
+          <h2>Saved deliveries</h2>
+        </div>
+        <button id="closeHistoryBtn" class="secondary-btn" type="button">Close</button>
+      </div>
+      <p class="hint">Records are saved automatically in this browser. Export important records for backup.</p>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <template id="historyItemTemplate">
+    <article class="history-item">
+      <div>
+        <h3 class="history-title"></h3>
+        <p class="history-meta"></p>
+        <p class="history-recipient"></p>
+      </div>
+      <div class="history-actions">
+        <button class="view-record secondary-btn" type="button">View</button>
+        <button class="download-record secondary-btn" type="button">Download</button>
+        <button class="delete-record danger-btn" type="button">Delete</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
