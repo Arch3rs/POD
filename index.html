@@ -6,9 +6,119 @@
   <meta name="theme-color" content="#0f172a" />
   <meta name="description" content="Proof of delivery sign-off app" />
   <title>Proof of Delivery</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --primary: #0f172a;
+  --primary-hover: #1e293b;
+  --success: #166534;
+  --success-bg: #f0fdf4;
+  --danger: #b91c1c;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button, input, textarea, select { font: inherit; }
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem max(1rem, calc((100vw - 980px) / 2));
+  color: white;
+  background: var(--primary);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.2);
+}
+
+.app-header h1 { margin: 0; font-size: clamp(1.35rem, 4vw, 2rem); }
+.eyebrow { margin: 0 0 .2rem; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; font-weight: 800; opacity: .75; }
+.container { width: min(980px, 100%); margin: 0 auto; padding: 1rem; }
+.card { background: var(--card); border-radius: 18px; padding: clamp(1rem, 4vw, 2rem); box-shadow: var(--shadow); margin-bottom: 1rem; }
+.grid { display: grid; gap: 1rem; }
+.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+label, legend { font-weight: 700; font-size: .95rem; }
+input, textarea, select {
+  width: 100%;
+  margin-top: .45rem;
+  padding: .85rem .9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  color: var(--text);
+}
+textarea { resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: 3px solid rgba(59, 130, 246, .2); border-color: #3b82f6; }
+form > label, form > .grid, fieldset, .checkbox-label { display: block; margin-bottom: 1rem; }
+
+.status-row { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; color: var(--muted); font-size: .86rem; }
+.save-status.saved { color: var(--success); font-weight: 700; }
+.record-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.signature-fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.signature-wrap { width: 100%; height: 220px; margin-top: .75rem; border: 2px dashed #94a3b8; border-radius: 12px; overflow: hidden; background: #fff; touch-action: none; }
+#signatureCanvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+.signature-actions { margin-top: .75rem; display: flex; justify-content: flex-end; }
+.hint { color: var(--muted); font-weight: 400; margin: .35rem 0 0; }
+.checkbox-label { display: flex; align-items: flex-start; gap: .75rem; padding: .9rem; background: #f8fafc; border-radius: 10px; }
+.checkbox-label input { width: 1.2rem; height: 1.2rem; margin: .1rem 0 0; }
+
+.button-row, .history-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+button { border: 0; border-radius: 10px; padding: .8rem 1rem; font-weight: 800; cursor: pointer; }
+.primary-btn { background: var(--primary); color: white; }
+.primary-btn:hover { background: var(--primary-hover); }
+.secondary-btn { background: #e2e8f0; color: var(--text); }
+.app-header .secondary-btn { background: rgba(255,255,255,.12); color: white; }
+.danger-btn { background: #fee2e2; color: var(--danger); }
+
+.hidden { display: none !important; }
+.success-card { text-align: center; background: var(--success-bg); border: 1px solid #bbf7d0; }
+.success-icon { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 1rem; background: var(--success); color: white; font-size: 2rem; font-weight: 900; }
+.success-card .button-row { justify-content: center; }
+.panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.panel-heading h2 { margin: 0; }
+.history-list { display: grid; gap: .85rem; margin-top: 1rem; }
+.history-item { display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.history-item h3, .history-item p { margin: 0; }
+.history-meta, .history-recipient { color: var(--muted); margin-top: .25rem !important; }
+
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+  .app-header { align-items: flex-start; }
+  .history-item { align-items: stretch; flex-direction: column; }
+  .history-actions button { flex: 1; }
+  .button-row > button { flex: 1 1 100%; }
+  .signature-wrap { height: 180px; }
+}
+
+@media print {
+  body { background: white; }
+  .app-header, .button-row, .signature-actions, #historyPanel, .status-row { display: none !important; }
+  .container { width: 100%; padding: 0; }
+  .card { box-shadow: none; border-radius: 0; padding: 0; }
+  input, textarea, select { border: 0; padding-left: 0; color: black; appearance: none; }
+  .signature-wrap { border: 1px solid #000; }
+}
+
+  </style>
 </head>
 <body>
   <header class="app-header">
@@ -143,6 +253,276 @@
     </article>
   </template>
 
-  <script src="app.js" defer></script>
+  <script>
+'use strict';
+
+const STORAGE_KEY = 'pod_records_v1';
+const DRAFT_KEY = 'pod_draft_v1';
+
+const form = document.getElementById('podForm');
+const canvas = document.getElementById('signatureCanvas');
+const ctx = canvas.getContext('2d');
+const saveStatus = document.getElementById('saveStatus');
+const recordIdEl = document.getElementById('recordId');
+const confirmationPanel = document.getElementById('confirmationPanel');
+const confirmationText = document.getElementById('confirmationText');
+const historyPanel = document.getElementById('historyPanel');
+const deliveryFormCard = document.getElementById('deliveryFormCard');
+
+let drawing = false;
+let signaturePresent = false;
+let currentRecord = null;
+let draftTimer = null;
+
+function generateId() {
+  const date = new Date();
+  const stamp = date.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `POD-${stamp}-${random}`;
+}
+
+function setToday() {
+  const input = document.getElementById('deliveryDate');
+  if (!input.value) input.value = new Date().toISOString().slice(0, 10);
+}
+
+function resizeCanvas(preserve = true) {
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const rect = canvas.getBoundingClientRect();
+  const previous = preserve && signaturePresent ? canvas.toDataURL() : null;
+  canvas.width = Math.round(rect.width * ratio);
+  canvas.height = Math.round(rect.height * ratio);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = '#0f172a';
+  if (previous) {
+    const image = new Image();
+    image.onload = () => ctx.drawImage(image, 0, 0, rect.width, rect.height);
+    image.src = previous;
+  }
+}
+
+function pointFromEvent(event) {
+  const rect = canvas.getBoundingClientRect();
+  const source = event.touches ? event.touches[0] : event;
+  return { x: source.clientX - rect.left, y: source.clientY - rect.top };
+}
+
+function beginDraw(event) {
+  event.preventDefault();
+  drawing = true;
+  signaturePresent = true;
+  const point = pointFromEvent(event);
+  ctx.beginPath();
+  ctx.moveTo(point.x, point.y);
+}
+
+function draw(event) {
+  if (!drawing) return;
+  event.preventDefault();
+  const point = pointFromEvent(event);
+  ctx.lineTo(point.x, point.y);
+  ctx.stroke();
+}
+
+function endDraw(event) {
+  if (!drawing) return;
+  event?.preventDefault();
+  drawing = false;
+  ctx.closePath();
+  scheduleDraftSave();
+}
+
+function clearSignature() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  signaturePresent = false;
+  scheduleDraftSave();
+}
+
+function getFormData() {
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.confirmation = document.getElementById('confirmation').checked;
+  data.signature = signaturePresent ? canvas.toDataURL('image/png') : '';
+  return data;
+}
+
+function saveDraft() {
+  const draft = getFormData();
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  saveStatus.textContent = `Draft saved ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  saveStatus.classList.add('saved');
+}
+
+function scheduleDraftSave() {
+  clearTimeout(draftTimer);
+  saveStatus.textContent = 'Saving draft…';
+  saveStatus.classList.remove('saved');
+  draftTimer = setTimeout(saveDraft, 350);
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    Object.entries(draft).forEach(([key, value]) => {
+      if (key === 'signature' || key === 'confirmation') return;
+      const field = form.elements.namedItem(key);
+      if (field) field.value = value || '';
+    });
+    document.getElementById('confirmation').checked = Boolean(draft.confirmation);
+    if (draft.signature) loadSignature(draft.signature);
+    saveStatus.textContent = 'Draft restored from this device';
+    saveStatus.classList.add('saved');
+  } catch {
+    localStorage.removeItem(DRAFT_KEY);
+  }
+}
+
+function loadSignature(dataUrl) {
+  const image = new Image();
+  image.onload = () => {
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, rect.width, rect.height);
+    signaturePresent = true;
+  };
+  image.src = dataUrl;
+}
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function storeRecords(records) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function completeDelivery(event) {
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  if (!signaturePresent) {
+    alert('Please ask the recipient to sign before completing the delivery.');
+    return;
+  }
+
+  const record = {
+    id: generateId(),
+    ...getFormData(),
+    signedAt: new Date().toISOString(),
+    savedAt: new Date().toISOString()
+  };
+
+  const records = getRecords();
+  records.unshift(record);
+  storeRecords(records);
+  localStorage.removeItem(DRAFT_KEY);
+  currentRecord = record;
+  recordIdEl.textContent = record.id;
+  saveStatus.textContent = 'Completed record saved automatically';
+  saveStatus.classList.add('saved');
+  confirmationText.textContent = `${record.deliveryNumber} was signed by ${record.recipientName} at ${new Date(record.signedAt).toLocaleString()}.`;
+  confirmationPanel.classList.remove('hidden');
+  confirmationPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetForm() {
+  form.reset();
+  clearSignature();
+  localStorage.removeItem(DRAFT_KEY);
+  currentRecord = null;
+  recordIdEl.textContent = '';
+  saveStatus.textContent = 'Draft not yet saved';
+  saveStatus.classList.remove('saved');
+  confirmationPanel.classList.add('hidden');
+  setToday();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function downloadRecord(record) {
+  const safeName = `${record.deliveryNumber || record.id}`.replace(/[^a-z0-9-_]/gi, '_');
+  const blob = new Blob([JSON.stringify(record, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${safeName}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function populateForm(record) {
+  Object.entries(record).forEach(([key, value]) => {
+    if (['signature', 'confirmation'].includes(key)) return;
+    const field = form.elements.namedItem(key);
+    if (field) field.value = value || '';
+  });
+  document.getElementById('confirmation').checked = Boolean(record.confirmation);
+  if (record.signature) loadSignature(record.signature);
+  currentRecord = record;
+  recordIdEl.textContent = record.id;
+  saveStatus.textContent = `Viewing saved record from ${new Date(record.signedAt).toLocaleString()}`;
+  saveStatus.classList.add('saved');
+  historyPanel.classList.add('hidden');
+  deliveryFormCard.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const template = document.getElementById('historyItemTemplate');
+  const records = getRecords();
+  list.innerHTML = '';
+
+  if (!records.length) {
+    list.innerHTML = '<p class="hint">No completed deliveries have been saved on this device yet.</p>';
+    return;
+  }
+
+  records.forEach(record => {
+    const item = template.content.cloneNode(true);
+    item.querySelector('.history-title').textContent = `${record.deliveryNumber} — ${record.customerName}`;
+    item.querySelector('.history-meta').textContent = `${new Date(record.signedAt).toLocaleString()} • ${record.id}`;
+    item.querySelector('.history-recipient').textContent = `Signed by ${record.recipientName}`;
+    item.querySelector('.view-record').addEventListener('click', () => populateForm(record));
+    item.querySelector('.download-record').addEventListener('click', () => downloadRecord(record));
+    item.querySelector('.delete-record').addEventListener('click', () => {
+      if (!confirm(`Delete ${record.deliveryNumber}? This cannot be undone.`)) return;
+      storeRecords(getRecords().filter(itemRecord => itemRecord.id !== record.id));
+      renderHistory();
+    });
+    list.appendChild(item);
+  });
+}
+
+form.addEventListener('submit', completeDelivery);
+form.addEventListener('input', scheduleDraftSave);
+document.getElementById('clearSignature').addEventListener('click', clearSignature);
+document.getElementById('newBtn').addEventListener('click', resetForm);
+document.getElementById('anotherBtn').addEventListener('click', resetForm);
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+document.getElementById('downloadBtn').addEventListener('click', () => currentRecord && downloadRecord(currentRecord));
+document.getElementById('historyBtn').addEventListener('click', () => {
+  renderHistory();
+  historyPanel.classList.remove('hidden');
+  historyPanel.scrollIntoView({ behavior: 'smooth' });
+});
+document.getElementById('closeHistoryBtn').addEventListener('click', () => historyPanel.classList.add('hidden'));
+
+['pointerdown', 'mousedown', 'touchstart'].forEach(type => canvas.addEventListener(type, beginDraw, { passive: false }));
+['pointermove', 'mousemove', 'touchmove'].forEach(type => canvas.addEventListener(type, draw, { passive: false }));
+['pointerup', 'pointercancel', 'mouseup', 'mouseleave', 'touchend'].forEach(type => canvas.addEventListener(type, endDraw, { passive: false }));
+
+window.addEventListener('resize', () => resizeCanvas(true));
+window.addEventListener('load', () => {
+  setToday();
+  resizeCanvas(false);
+  loadDraft();
+});
+
+
+  </script>
 </body>
 </html>
